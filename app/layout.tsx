@@ -1,0 +1,3 @@
+import type {Metadata} from 'next'; import './globals.css';
+export const metadata:Metadata={title:'Red Elohim | Casas de Paz en Villa Hermosa',description:'Encuentra una Casa de Paz de la Red Elohim en Villa Hermosa. Conoce nuestras ubicaciones, horarios, fotografías y encuentra una comunidad cerca de ti.',openGraph:{title:'Red Elohim | Casas de Paz en Villa Hermosa',description:'Hay una Casa de Paz cerca de ti.',type:'website',locale:'es_GT'},icons:{icon:'/favicon.svg'}};
+export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="es"><body>{children}</body></html>}
