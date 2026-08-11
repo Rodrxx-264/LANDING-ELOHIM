@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Red Elohim | Casas de Paz en Villa Hermosa</title>
+<meta name="description" content="Encuentra una Casa de Paz de la Red Elohim en Villa Hermosa. Conoce nuestras ubicaciones, horarios, fotografías y encuentra una comunidad cerca de ti." />
+<meta name="theme-color" content="#0B0A08" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Red Elohim | Casas de Paz en Villa Hermosa" />
+<meta property="og:description" content="Hay una Casa de Paz cerca de ti. Tres lugares. Una familia. Un mismo propósito." />
+<meta property="og:image" content="og-image.jpg" />
+<meta property="og:locale" content="es_GT" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<!-- Favicon (inline ember mark, swap for /favicon.ico in production) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B0A08'/%3E%3Cpath d='M32 12c6 8-8 12-2 22 2-6 6-6 6-10 6 6 4 16-4 20-9 4-18-2-18-12 0-8 8-10 8-16 4 2 6-2 10-4z' fill='%23E8A33D'/%3E%3C/svg%3E" />
+
+<!-- Schema.org -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Church",
+  "name": "Red Elohim",
+  "description": "Red de Casas de Paz en Villa Hermosa, Guatemala.",
+  "address": { "@type": "PostalAddress", "addressLocality": "Villa Hermosa", "addressCountry": "GT" }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=Fraunces:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/3.4.4/tailwind.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          carbon: { 950:'#0B0A08', 900:'#141210', 800:'#1E1A16', 700:'#2A251F' },
+          cream: '#F7F1E6',
+          ember: { DEFAULT:'#E8A33D', deep:'#C1552A', glow:'#FFD98E' }
+        },
+        fontFamily: {
+          display: ['Sora','sans-serif'],
+          body: ['Inter','sans-serif'],
+          verse: ['Fraunces','serif']
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  :root{ --ease:cubic-bezier(.19,1,.22,1); }
+  html,body{ background:#0B0A08; }
+  body{ font-family:'Inter',sans-serif; overscroll-behavior-y:none; }
+  h1,h2,h3,.font-display{ font-family:'Sora',sans-serif; }
+
+  /* signature ember glow — the recurring light/fire motif */
+  .ember-glow{ position:absolute; inset:0; pointer-events:none; }
+  .ember-glow::before{
+    content:''; position:absolute; left:50%; top:50%;
+    width:120vw; height:120vw; max-width:900px; max-height:900px;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle, rgba(232,163,61,.35) 0%, rgba(193,85,42,.14) 35%, transparent 68%);
+    filter:blur(10px);
+    animation:breathe 7s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{ opacity:.55; transform:translate(-50%,-50%) scale(1); }
+    50%{ opacity:.9; transform:translate(-50%,-50%) scale(1.08); }
+  }
+
+  .grain{ position:absolute; inset:0; opacity:.05; mix-blend-mode:overlay; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .8s var(--ease), transform .8s var(--ease); }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  .tap-scale{ transition:transform .15s ease; }
+  .tap-scale:active{ transform:scale(.96); }
+
+  .scrollbar-none::-webkit-scrollbar{ display:none; }
+  .scrollbar-none{ -ms-overflow-style:none; scrollbar-width:none; }
+
+  /* photo placeholder treatment — swap these blocks for real <img>/<picture> in production */
+  .photo-hero{
+    background:
+      radial-gradient(120% 90% at 15% 0%, rgba(232,163,61,.22), transparent 55%),
+      radial-gradient(90% 70% at 85% 100%, rgba(193,85,42,.28), transparent 60%),
+      linear-gradient(180deg, #1c1712 0%, #0e0c0a 60%, #0B0A08 100%);
+  }
+  .photo-warm{
+    background:
+      radial-gradient(80% 60% at 20% 20%, rgba(232,163,61,.30), transparent 60%),
+      radial-gradient(70% 60% at 90% 90%, rgba(193,85,42,.25), transparent 60%),
+      linear-gradient(150deg,#211b15,#141110);
+  }
+  .photo-cool{
+    background:
+      radial-gradient(80% 60% at 80% 10%, rgba(232,163,61,.18), transparent 60%),
+      linear-gradient(160deg,#1a1512,#0d0b09);
+  }
+
+  .leaflet-container{ background:#141210 !important; font-family:'Inter',sans-serif; }
+  .leaflet-popup-content-wrapper{ background:#1E1A16; color:#F7F1E6; border-radius:16px; }
+  .leaflet-popup-tip{ background:#1E1A16; }
+  .leaflet-popup-content{ margin:14px 16px; }
+  .ember-pin{ filter:drop-shadow(0 4px 10px rgba(232,163,61,.5)); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+  }
+</style>
+</head>
+
+<body class="bg-carbon-950 text-cream font-body antialiased">
+
+<!-- ======================= HEADER ======================= -->
+<header id="site-header" class="fixed top-0 inset-x-0 z-40 transition-all duration-300">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+    <a href="#inicio" class="font-display font-extrabold tracking-[0.18em] text-sm sm:text-base text-cream">RED <span class="text-ember">ELOHIM</span></a>
+    <a href="#contacto" class="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-carbon-950 bg-ember hover:bg-ember-glow transition-colors px-4 py-2 rounded-full tap-scale">
+      💬 WhatsApp
+    </a>
+  </div>
+</header>
+
+<!-- ======================= HERO ======================= -->
+<section id="inicio" class="relative min-h-[92svh] flex flex-col justify-end overflow-hidden photo-hero">
+  <div class="ember-glow opacity-70"></div>
+  <div class="grain"></div>
+  <div class="absolute inset-0 bg-gradient-to-t from-carbon-950 via-carbon-950/40 to-transparent"></div>
+
+  <div class="relative z-10 max-w-6xl mx-auto w-full px-5 sm:px-8 pb-10 sm:pb-16">
+    <p class="reveal font-display text-xs sm:text-sm tracking-[0.35em] text-ember mb-4">RED ELOHIM · VILLA HERMOSA</p>
+    <h1 class="reveal font-display font-extrabold leading-[1.03] text-[clamp(2.4rem,9vw,5rem)] mb-5">
+      Hay una<br/>Casa de Paz<br/><span class="text-ember">cerca de ti.</span>
+    </h1>
+    <p class="reveal font-body text-cream/70 text-lg sm:text-xl max-w-md mb-9">Tres lugares. Una familia. Un mismo propósito.</p>
+
+    <div class="reveal flex flex-col sm:flex-row gap-3 sm:gap-4">
+      <a href="#casas" class="tap-scale inline-flex items-center justify-center gap-2 bg-ember text-carbon-950 font-display font-bold text-base px-6 py-4 rounded-2xl shadow-[0_10px_30px_-8px_rgba(232,163,61,.55)]">
+        📍 Encuentra tu Casa de Paz
+      </a>
+      <a id="hero-wa" href="#" target="_blank" rel="noopener" class="tap-scale inline-flex items-center justify-center gap-2 border border-cream/25 text-cream font-display font-semibold text-base px-6 py-4 rounded-2xl backdrop-blur-sm bg-cream/5">
+        💬 Hablar por WhatsApp
+      </a>
+    </div>
+
+    <div class="reveal mt-10 flex items-center gap-2 text-cream/50 text-xs tracking-[0.2em] font-display">
+      <span class="w-6 h-px bg-cream/40 animate-pulse"></span> DESLIZA PARA DESCUBRIR
+    </div>
+  </div>
+</section>
+
+<!-- ======================= VERSÍCULO DEL DÍA ======================= -->
+<section class="relative py-20 sm:py-28 overflow-hidden photo-warm">
+  <div class="ember-glow opacity-40"></div>
+  <div class="relative z-10 max-w-2xl mx-auto px-6 sm:px-8 text-center">
+    <p id="verse-date" class="reveal font-display text-xs tracking-[0.35em] text-ember/80 mb-6"></p>
+    <p class="reveal font-display text-[10px] tracking-[0.4em] text-cream/40 mb-3">VERSÍCULO DEL DÍA</p>
+    <p id="verse-text" class="reveal font-verse italic text-[clamp(1.5rem,5.5vw,2.4rem)] leading-snug text-cream mb-6"></p>
+    <p id="verse-ref" class="reveal font-display font-bold text-ember tracking-wide"></p>
+  </div>
+</section>
+
+<!-- ======================= IDENTIDAD ======================= -->
+<section class="relative py-20 sm:py-28 px-5 sm:px-8 photo-cool">
+  <div class="max-w-4xl mx-auto text-center">
+    <p class="reveal font-display text-xs tracking-[0.35em] text-ember mb-5">QUIÉNES SOMOS</p>
+    <h2 class="reveal font-display font-extrabold text-[clamp(1.9rem,6vw,3.2rem)] leading-tight mb-6">
+      Una red. Tres Casas.<br/>Una familia.
+    </h2>
+    <p class="reveal text-cream/70 text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-14">
+      Dios nos ha permitido seguir creciendo en Villa Hermosa. Hoy contamos con tres Casas de Paz, tres lugares donde podemos reunirnos, compartir, crecer en nuestra fe y vivir comunidad.
+    </p>
+
+    <div class="reveal grid grid-cols-3 gap-4 sm:gap-8 max-w-lg mx-auto">
+      <div>
+        <p class="font-display font-extrabold text-ember text-[clamp(2rem,7vw,3rem)] leading-none mb-2">03</p>
+        <p class="text-[11px] sm:text-xs tracking-[0.15em] text-cream/50">CASAS DE PAZ</p>
+      </div>
+      <div>
+        <p class="font-display font-extrabold text-ember text-[clamp(2rem,7vw,3rem)] leading-none mb-2">01</p>
+        <p class="text-[11px] sm:text-xs tracking-[0.15em] text-cream/50">RED</p>
+      </div>
+      <div>
+        <p class="font-display font-extrabold text-ember text-[clamp(2rem,7vw,3rem)] leading-none mb-2">∞</p>
+        <p class="text-[11px] sm:text-xs tracking-[0.15em] text-cream/50">HISTORIAS POR CONTAR</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= CASAS DE PAZ ======================= -->
+<section id="casas" class="relative py-20 sm:py-28 px-5 sm:px-8 bg-carbon-950">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-14">
+      <h2 class="reveal font-display font-extrabold text-[clamp(2rem,6.5vw,3.4rem)] leading-tight mb-3">Encuentra tu<br class="sm:hidden"/> Casa de Paz</h2>
+      <p class="reveal text-cream/60 text-base sm:text-lg">Elige la que esté más cerca de ti.</p>
+    </div>
+
+    <!-- Casa más cercana -->
+    <div class="reveal mb-14 rounded-3xl border border-ember/25 bg-gradient-to-br from-carbon-800 to-carbon-900 p-6 sm:p-8">
+      <div id="nearest-idle" class="text-center">
+        <p class="font-display font-bold text-lg sm:text-xl mb-2">📍 Encuentra la Casa más cercana</p>
+        <p class="text-cream/60 text-sm mb-5">Usa tu ubicación y te decimos a qué Casa de Paz puedes llegar más rápido.</p>
+        <button id="btn-locate" class="tap-scale bg-ember text-carbon-950 font-display font-bold px-6 py-3.5 rounded-2xl">Permitir ubicación</button>
+        <p id="locate-status" class="text-xs text-cream/40 mt-3"></p>
+      </div>
+      <div id="nearest-result" class="hidden text-center">
+        <p class="font-display text-[10px] tracking-[0.3em] text-ember/80 mb-2">TU CASA DE PAZ MÁS CERCANA</p>
+        <p id="nearest-name" class="font-display font-extrabold text-2xl mb-1"></p>
+        <p id="nearest-dist" class="text-cream/60 text-sm mb-6"></p>
+        <a id="nearest-link" href="#" target="_blank" rel="noopener" class="tap-scale inline-flex items-center gap-2 bg-ember text-carbon-950 font-display font-bold px-6 py-3.5 rounded-2xl">Cómo llegar →</a>
+      </div>
+    </div>
+
+    <div id="casa-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </div>
+</section>
+
+<!-- ======================= MAPA ======================= -->
+<section id="mapa" class="relative py-20 sm:py-28 px-5 sm:px-8 photo-cool">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-10">
+      <h2 class="reveal font-display font-extrabold text-[clamp(1.9rem,6vw,3rem)] mb-3">¿Dónde estamos?</h2>
+      <p class="reveal text-cream/60">Las tres Casas de Paz, en un mismo mapa.</p>
+    </div>
+    <div class="reveal rounded-3xl overflow-hidden border border-cream/10">
+      <div id="map" class="w-full h-[400px] sm:h-[480px]"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= GALERÍA ======================= -->
+<section id="fotos" class="relative py-20 sm:py-28 px-5 sm:px-8 bg-carbon-950">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-10">
+      <h2 class="reveal font-display font-extrabold text-[clamp(1.9rem,6vw,3rem)] mb-3">Así vivimos nuestras<br/>Casas de Paz</h2>
+      <p class="reveal text-cream/50 text-sm">Reemplaza estos espacios por fotografías reales de cada Casa.</p>
+    </div>
+    <div id="gallery" class="grid grid-cols-2 gap-3 sm:gap-4 auto-rows-[140px] sm:auto-rows-[180px]"></div>
+  </div>
+</section>
+
+<!-- Lightbox -->
+<div id="lightbox" class="hidden fixed inset-0 z-[60] bg-carbon-950/95 backdrop-blur-sm flex items-center justify-center p-6">
+  <button id="lightbox-close" class="absolute top-6 right-6 text-cream/70 text-2xl">✕</button>
+  <div id="lightbox-content" class="w-full max-w-2xl aspect-[4/5] rounded-3xl photo-warm relative overflow-hidden">
+    <div class="ember-glow"></div>
+  </div>
+</div>
+
+<!-- ======================= SECCIÓN EMOCIONAL ======================= -->
+<section class="relative py-28 sm:py-36 px-5 sm:px-8 overflow-hidden photo-hero">
+  <div class="ember-glow opacity-60"></div>
+  <div class="relative z-10 max-w-2xl mx-auto text-center">
+    <p class="reveal font-display text-xs tracking-[0.35em] text-ember mb-6">NO CAMINES SOLO</p>
+    <h2 class="reveal font-display font-extrabold text-[clamp(2.2rem,8vw,4rem)] leading-[1.05] mb-6">No vengas solo.</h2>
+    <p class="reveal text-cream/70 text-lg mb-10">Trae a alguien contigo. Hay un lugar para ti.</p>
+    <div class="reveal flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="#casas" class="tap-scale inline-flex items-center justify-center gap-2 bg-ember text-carbon-950 font-display font-bold px-6 py-4 rounded-2xl">Encuentra tu Casa de Paz</a>
+      <a id="emotional-wa" href="#" target="_blank" rel="noopener" class="tap-scale inline-flex items-center justify-center gap-2 border border-cream/25 text-cream font-display font-semibold px-6 py-4 rounded-2xl bg-cream/5">💬 Escríbenos</a>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= CONTACTO / FOOTER ======================= -->
+<footer id="contacto" class="relative px-5 sm:px-8 pt-16 pb-32 sm:pb-16 bg-carbon-900 border-t border-cream/10">
+  <div class="max-w-4xl mx-auto text-center">
+    <p class="font-display font-extrabold tracking-[0.18em] text-lg mb-3">RED <span class="text-ember">ELOHIM</span></p>
+    <p class="text-cream/50 text-sm mb-8">Villa Hermosa, Guatemala · Martes · 7:00 PM</p>
+    <p class="font-verse italic text-cream/60 text-lg mb-10">"Tu próxima historia puede comenzar aquí."</p>
+    <div id="footer-wa-list" class="flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto"></div>
+    <p class="text-cream/30 text-xs mt-14">© <span id="year"></span> Red Elohim. Hecho con propósito en Villa Hermosa.</p>
+  </div>
+</footer>
+
+<!-- ======================= NAV INFERIOR ======================= -->
+<nav class="fixed bottom-0 inset-x-0 z-40 pb-[env(safe-area-inset-bottom)]">
+  <div class="mx-3 mb-3 rounded-2xl bg-carbon-900/80 backdrop-blur-lg border border-cream/10 shadow-[0_10px_30px_-10px_rgba(0,0,0,.6)]">
+    <div class="grid grid-cols-4">
+      <a href="#inicio" data-nav class="nav-link flex flex-col items-center gap-1 py-3 text-cream/50 text-[10px] font-medium">
+        <span class="text-lg">🏠</span>Inicio
+      </a>
+      <a href="#casas" data-nav class="nav-link flex flex-col items-center gap-1 py-3 text-cream/50 text-[10px] font-medium">
+        <span class="text-lg">📍</span>Casas
+      </a>
+      <a href="#mapa" data-nav class="nav-link flex flex-col items-center gap-1 py-3 text-cream/50 text-[10px] font-medium">
+        <span class="text-lg">🗺️</span>Mapa
+      </a>
+      <a href="#fotos" data-nav class="nav-link flex flex-col items-center gap-1 py-3 text-cream/50 text-[10px] font-medium">
+        <span class="text-lg">📸</span>Fotos
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ======================= WHATSAPP FLOTANTE ======================= -->
+<div class="fixed right-4 z-50" style="bottom: 96px;">
+  <button id="wa-fab" class="tap-scale w-14 h-14 rounded-full bg-ember text-carbon-950 text-2xl shadow-[0_10px_30px_-6px_rgba(232,163,61,.6)] flex items-center justify-center">💬</button>
+</div>
+
+<div id="wa-sheet" class="hidden fixed inset-0 z-50 flex items-end justify-center">
+  <div id="wa-sheet-backdrop" class="absolute inset-0 bg-carbon-950/70 backdrop-blur-sm"></div>
+  <div class="relative w-full max-w-md bg-carbon-900 border-t border-cream/10 rounded-t-3xl p-6 pb-10">
+    <div class="w-10 h-1 bg-cream/20 rounded-full mx-auto mb-5"></div>
+    <p class="font-display font-bold text-lg mb-4 text-center">¿Con quién quieres hablar?</p>
+    <div id="wa-sheet-list" class="flex flex-col gap-3"></div>
+  </div>
+</div>
+
+<script>
+/* ======================= DATOS ======================= */
+const versiculoDelDia = {
+  texto: "Porque donde están dos o tres congregados en mi nombre, allí estoy yo en medio de ellos.",
+  referencia: "Mateo 18:20",
+  fecha: "" // se calcula automáticamente si se deja vacío
+};
+
+const casasDePaz = [
+  {
+    id: 1,
+    nombre: "Casa de Paz 01",
+    horario: "Martes · 7:00 PM",
+    mapsUrl: "https://maps.app.goo.gl/fUHxMcHo4xJi7UBP9",
+    lat: 14.519681, lng: -90.544808,
+    whatsapp: "59955937",
+    nueva: false
+  },
+  {
+    id: 2,
+    nombre: "Casa de Paz 02",
+    horario: "Martes · 7:00 PM",
+    mapsUrl: "https://maps.app.goo.gl/G2g7hDngXav1bXAp6",
+    lat: 14.519560, lng: -90.550032,
+    whatsapp: "44347809",
+    nueva: false
+  },
+  {
+    id: 3,
+    nombre: "Casa de Paz 03",
+    horario: "Martes · 7:00 PM",
+    mapsUrl: "https://maps.app.goo.gl/aSkBzcTi5ERaVEXK7",
+    lat: 14.516667, lng: -90.548735,
+    whatsapp: "48826340",
+    nueva: true
+  }
+];
+
+const MENSAJE_DEFAULT = "Hola, me gustaría recibir más información sobre las Casas de Paz de Red Elohim.";
+const waLink = (numero, mensaje = MENSAJE_DEFAULT) => `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+const directionsLink = (casa) => `https://www.google.com/maps/dir/?api=1&destination=${casa.lat},${casa.lng}`;
+
+/* ======================= VERSÍCULO ======================= */
+(function renderVerse(){
+  const fecha = versiculoDelDia.fecha || new Date().toLocaleDateString('es-GT', { weekday:'long', day:'numeric', month:'long' });
+  document.getElementById('verse-date').textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1);
+  document.getElementById('verse-text').textContent = `“${versiculoDelDia.texto}”`;
+  document.getElementById('verse-ref').textContent = versiculoDelDia.referencia;
+})();
+
+/* ======================= HERO / FOOTER WA LINKS ======================= */
+document.getElementById('hero-wa').href = waLink(casasDePaz[0].whatsapp);
+document.getElementById('emotional-wa').href = waLink(casasDePaz[0].whatsapp);
+
+/* ======================= CASA CARDS ======================= */
+const cardsWrap = document.getElementById('casa-cards');
+casasDePaz.forEach((casa, i) => {
+  const el = document.createElement('div');
+  el.className = 'reveal group relative rounded-3xl overflow-hidden border border-cream/10 bg-carbon-800 tap-scale';
+  el.innerHTML = `
+    <div class="relative h-40 sm:h-48 photo-warm overflow-hidden">
+      <div class="ember-glow opacity-30"></div>
+      ${casa.nueva ? `<span class="absolute top-4 right-4 bg-ember text-carbon-950 text-[11px] font-display font-extrabold tracking-wide px-3 py-1.5 rounded-full">🔥 NUEVA</span>` : ''}
+      <span class="absolute bottom-4 left-5 font-display font-extrabold text-4xl text-cream/90">0${casa.id}</span>
+    </div>
+    <div class="p-6">
+      <h3 class="font-display font-bold text-xl mb-1">${casa.nombre}</h3>
+      <p class="text-cream/50 text-sm mb-4 flex items-center gap-2">🕖 ${casa.horario}</p>
+      <div class="flex gap-2">
+        <a href="${casa.mapsUrl}" target="_blank" rel="noopener" class="tap-scale flex-1 text-center text-sm font-display font-semibold border border-cream/20 rounded-xl py-3">📍 Ver ubicación</a>
+        <a href="${directionsLink(casa)}" target="_blank" rel="noopener" class="tap-scale flex-1 text-center text-sm font-display font-semibold bg-ember text-carbon-950 rounded-xl py-3">🧭 Cómo llegar</a>
+      </div>
+      <a href="${waLink(casa.whatsapp)}" target="_blank" rel="noopener" class="tap-scale mt-3 flex items-center justify-center gap-2 text-sm font-display font-semibold text-ember/90 py-2">💬 Escribir por WhatsApp</a>
+    </div>
+  `;
+  cardsWrap.appendChild(el);
+});
+
+/* ======================= CASA MÁS CERCANA ======================= */
+function haversine(lat1, lng1, lat2, lng2){
+  const R = 6371;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLng = (lng2-lng1) * Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+document.getElementById('btn-locate').addEventListener('click', () => {
+  const status = document.getElementById('locate-status');
+  if (!navigator.geolocation){
+    status.textContent = 'Tu navegador no soporta ubicación. Elige una Casa manualmente abajo.';
+    return;
+  }
+  status.textContent = 'Buscando tu ubicación…';
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude } = pos.coords;
+      const ordenadas = [...casasDePaz]
+        .map(c => ({ ...c, distancia: haversine(latitude, longitude, c.lat, c.lng) }))
+        .sort((a,b) => a.distancia - b.distancia);
+      const cercana = ordenadas[0];
+      document.getElementById('nearest-idle').classList.add('hidden');
+      document.getElementById('nearest-result').classList.remove('hidden');
+      document.getElementById('nearest-name').textContent = cercana.nombre;
+      document.getElementById('nearest-dist').textContent = `${cercana.distancia.toFixed(1)} km de distancia`;
+      document.getElementById('nearest-link').href = directionsLink(cercana);
+    },
+    () => { status.textContent = 'No pudimos acceder a tu ubicación. Elige tu Casa de Paz abajo 👇'; },
+    { enableHighAccuracy:true, timeout:8000 }
+  );
+});
+
+/* ======================= MAPA (Leaflet) ======================= */
+const map = L.map('map', { zoomControl:true, scrollWheelZoom:false }).setView([14.5183,-90.5478], 15);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
+}).addTo(map);
+
+const emberIcon = L.divIcon({
+  className: '',
+  html: `<div class="ember-pin" style="width:30px;height:30px;background:radial-gradient(circle at 35% 30%, #FFD98E, #E8A33D 55%, #C1552A 100%);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #0B0A08;"></div>`,
+  iconSize: [30,30], iconAnchor: [15,28]
+});
+
+casasDePaz.forEach(casa => {
+  L.marker([casa.lat, casa.lng], { icon: emberIcon }).addTo(map)
+    .bindPopup(`
+      <div class="font-display font-bold text-sm mb-1">${casa.id === 3 ? '🔥 ' : ''}${casa.nombre}</div>
+      <div class="text-xs opacity-70 mb-3">${casa.horario}</div>
+      <a href="${directionsLink(casa)}" target="_blank" rel="noopener" style="color:#E8A33D;font-weight:600;font-size:13px;">Cómo llegar →</a>
+    `);
+});
+
+/* ======================= GALERÍA (mosaico) ======================= */
+const galleryItems = [
+  { size:'row-span-2 col-span-1', cls:'photo-warm' },
+  { size:'row-span-1 col-span-1', cls:'photo-hero' },
+  { size:'row-span-1 col-span-1', cls:'photo-cool' },
+  { size:'row-span-1 col-span-2', cls:'photo-warm' },
+  { size:'row-span-2 col-span-1', cls:'photo-cool' },
+  { size:'row-span-1 col-span-1', cls:'photo-hero' },
+];
+const galleryWrap = document.getElementById('gallery');
+galleryItems.forEach((item) => {
+  const el = document.createElement('button');
+  el.className = `reveal ${item.size} ${item.cls} relative rounded-2xl overflow-hidden tap-scale`;
+  el.setAttribute('aria-label', 'Ver fotografía de una Casa de Paz');
+  el.innerHTML = `<div class="ember-glow opacity-30"></div>`;
+  el.addEventListener('click', () => document.getElementById('lightbox').classList.remove('hidden'));
+  galleryWrap.appendChild(el);
+});
+document.getElementById('lightbox-close').addEventListener('click', () => document.getElementById('lightbox').classList.add('hidden'));
+document.getElementById('lightbox').addEventListener('click', (e) => { if(e.target.id === 'lightbox') e.currentTarget.classList.add('hidden'); });
+
+/* ======================= WHATSAPP FLOTANTE ======================= */
+const waListHtml = casasDePaz.map(c => `
+  <a href="${waLink(c.whatsapp)}" target="_blank" rel="noopener" class="tap-scale flex items-center justify-between bg-carbon-800 border border-cream/10 rounded-2xl px-5 py-4">
+    <span class="font-display font-semibold">${c.nombre}</span>
+    <span class="text-ember">💬</span>
+  </a>`).join('');
+document.getElementById('wa-sheet-list').innerHTML = waListHtml;
+document.getElementById('footer-wa-list').innerHTML = casasDePaz.map(c => `
+  <a href="${waLink(c.whatsapp)}" target="_blank" rel="noopener" class="tap-scale flex-1 border border-cream/15 rounded-xl px-4 py-3 text-sm font-display font-semibold">${c.nombre}</a>
+`).join('');
+
+const waFab = document.getElementById('wa-fab');
+const waSheet = document.getElementById('wa-sheet');
+waFab.addEventListener('click', () => waSheet.classList.remove('hidden'));
+document.getElementById('wa-sheet-backdrop').addEventListener('click', () => waSheet.classList.add('hidden'));
+
+/* ======================= HEADER SCROLL ======================= */
+const header = document.getElementById('site-header');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 40){
+    header.classList.add('bg-carbon-950/80','backdrop-blur-lg','border-b','border-cream/10');
+  } else {
+    header.classList.remove('bg-carbon-950/80','backdrop-blur-lg','border-b','border-cream/10');
+  }
+}, { passive:true });
+
+/* ======================= NAV ACTIVA ======================= */
+const sections = ['inicio','casas','mapa','fotos'].map(id => document.getElementById(id));
+const navLinks = document.querySelectorAll('[data-nav]');
+const navObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting){
+      navLinks.forEach(l => l.classList.remove('text-ember'));
+      const active = document.querySelector(`[data-nav][href="#${entry.target.id}"]`);
+      if (active) active.classList.add('text-ember');
+    }
+  });
+}, { threshold:0.4 });
+sections.forEach(s => s && navObserver.observe(s));
+
+/* ======================= REVEAL ON SCROLL ======================= */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('in'); });
+}, { threshold:0.15 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
